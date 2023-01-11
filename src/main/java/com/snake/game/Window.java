@@ -23,7 +23,7 @@ public class Window extends JFrame implements KeyListener {
         this.add(sPanel);
         this.add(panel);
         //
-        Timer timer = new Timer(1000, e -> {
+        Timer timer = new Timer(600, e -> {
             snek.move();
             repaint();
         });

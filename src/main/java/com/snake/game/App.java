@@ -7,6 +7,6 @@ public class App
 {
     public static void main( String[] args )
     {
-        new Window(594, 616);
+        new Window(578, 615);
     }
 }

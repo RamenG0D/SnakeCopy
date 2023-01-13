@@ -24,7 +24,7 @@ public class Panel extends JPanel implements Grid {
         draw(g);
     }
     public void draw(Graphics g) {
-        createGrid(g, 21, 21, 32, 576);
+        createGrid(g, 19, 19, 32, 576);
     }
     //
     @Override

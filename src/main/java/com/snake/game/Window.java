@@ -4,11 +4,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import org.nd4j.linalg.api.ndarray.INDArray;
+
 import com.snake.game.Snake.Direction;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.awt.Color;
 
 public class Window extends JFrame implements KeyListener {
@@ -23,12 +26,25 @@ public class Window extends JFrame implements KeyListener {
         this.add(sPanel);
         this.add(panel);
         //
-        Timer timer = new Timer(600, e -> {
+        Timer timer = new Timer(400, e -> {
             snek.move();
             repaint();
         });
         timer.setRepeats(true);
         timer.start();
+    }
+    //
+    public void input(KeyEvent e) {
+        int keycode = e.getKeyCode();
+        if(keycode == KeyEvent.VK_UP && snek.currentDirection != Direction.Down) {
+            snek.currentDirection = Direction.Up;
+        } else if(keycode == KeyEvent.VK_DOWN && snek.currentDirection != Direction.Up) {
+            snek.currentDirection = Direction.Down;
+        } else if(keycode == KeyEvent.VK_LEFT && snek.currentDirection != Direction.Right) {
+            snek.currentDirection = Direction.Left;
+        } else if(keycode == KeyEvent.VK_RIGHT && snek.currentDirection != Direction.Left) {
+            snek.currentDirection = Direction.Right;
+        }
     }
     //
     public void frameConfig(int width, int height) {
@@ -48,6 +64,7 @@ public class Window extends JFrame implements KeyListener {
         //
         public SnakePanel() {
             this.setSize(600,600);
+            this.setDoubleBuffered(true);
             this.setFocusable(false);
             this.setOpaque(false);
         }
@@ -62,16 +79,7 @@ public class Window extends JFrame implements KeyListener {
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyPressed(KeyEvent e) {
-        int keycode = e.getKeyCode();
-        if(keycode == KeyEvent.VK_UP && snek.currentDirection != Direction.Down) {
-            snek.currentDirection = Direction.Up;
-        } else if(keycode == KeyEvent.VK_DOWN && snek.currentDirection != Direction.Up) {
-            snek.currentDirection = Direction.Down;
-        } else if(keycode == KeyEvent.VK_LEFT && snek.currentDirection != Direction.Right) {
-            snek.currentDirection = Direction.Left;
-        } else if(keycode == KeyEvent.VK_RIGHT && snek.currentDirection != Direction.Left) {
-            snek.currentDirection = Direction.Right;
-        }
+        input(e);
         repaint();
     }
     @Override

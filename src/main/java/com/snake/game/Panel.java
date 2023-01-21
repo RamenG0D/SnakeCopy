@@ -7,10 +7,9 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 
 public class Panel extends JPanel implements Grid {
-    private Snek snek;
+    private int cellSize;
     //
-    public Panel(Snek snek) {
-        this.snek = snek;
+    public Panel() {
         //
         this.setSize(600, 600);
         this.setFocusable(false);
@@ -24,18 +23,18 @@ public class Panel extends JPanel implements Grid {
         draw(g);
     }
     public void draw(Graphics g) {
-        createGrid(g, 19, 19, 32, 576);
+        createGrid(g, 19, 19);
     }
     //
     @Override
-    public void createGrid(Graphics g, int rows, int cols, int cellSize, int windowSize) {
+    public void createGrid(Graphics g, int rows, int cols) {
         g.setColor(Color.GRAY);
         //
         for (int i = 0; i < rows; i++) {
-            g.drawLine(0, i*cellSize, windowSize, i*cellSize);
+            g.drawLine(0, i*cellSize, 576, i*cellSize);
         }
         for (int i = 0; i < cols; i++) {
-            g.drawLine(i*cellSize, 0, i*cellSize, windowSize);
+            g.drawLine(i*cellSize, 0, i*cellSize, 576);
         }
     }
 }

@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 public interface Snake {
-    public abstract void createSnake(Graphics g, int cellSize);
+    public abstract void createSnake(Graphics g);
     //
     public abstract void move();
     //

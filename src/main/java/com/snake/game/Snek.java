@@ -7,17 +7,17 @@ import java.awt.Color;
 public class Snek implements Snake {
     private final int cellSize = 32;
     public Position[] position = new Position[] {
-        new Position(2, 10),
+        new Position(4, 10),
         new Position(3, 10),
-        new Position(4, 10)
+        new Position(2, 10)
     };
     //
     public void createSnake(Graphics g) {
-        g.setColor(Color.GREEN);
         //
-        for (int i = 0; i < position.length; i++) {
-            if(i == position.length) g.fillRect(position[position.length - 1].x, position[position.length - 1].y, cellSize, cellSize);
-            g.drawRect(position[i].x*cellSize, position[i].y*cellSize, cellSize, cellSize);
+        g.setColor(Color.GREEN);
+        for (int i = position.length; i > 0; i--) {    
+            if(i == 1) g.fillRect(position[0].x*cellSize, position[0].y*cellSize, cellSize, cellSize);
+            g.drawRect(position[i - 1].x*cellSize, position[i - 1].y*cellSize, cellSize, cellSize);
         }
     }
     Direction currentDirection = Direction.Right;
@@ -25,21 +25,21 @@ public class Snek implements Snake {
     @Override
     public void move() {
         // moves snake
-        for (int i = 0; i < position.length - 1; i++) {
-            position[i] = position[i + 1];
+        for (int i = position.length - 1; i > 0; i--) {
+            position[i] = position[i - 1];
         }
         switch(currentDirection) {
             case Right:
-                position[position.length - 1] = new Position(position[position.length - 1].x + 1, position[position.length - 1].y);
+                position[0] = new Position(position[0].x + 1, position[0].y);
                 break;
             case Left:
-                position[position.length - 1] = new Position(position[position.length - 1].x - 1, position[position.length - 1].y);
+                position[0] = new Position(position[0].x - 1, position[0].y);
                 break;
             case Down:
-                position[position.length - 1] = new Position(position[position.length - 1].x, position[position.length - 1].y + 1);
+                position[0] = new Position(position[0].x, position[0].y + 1);
                 break;
             case Up:
-                position[position.length - 1] = new Position(position[position.length - 1].x, position[position.length - 1].y - 1);
+                position[0] = new Position(position[0].x, position[0].y - 1);
                 break;
             default:
                 break;

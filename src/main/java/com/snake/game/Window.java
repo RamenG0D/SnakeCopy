@@ -15,6 +15,7 @@ public class Window extends JFrame {
     private SnakePanel sPanel;
     private Apple apple;
     private Panel panel;
+    private Score score;
     //
     public Window(int width, int height) {
         frameConfig(width, height);
@@ -27,7 +28,6 @@ public class Window extends JFrame {
             if(isAppleEaten()) {
                 snek.addSnakePart();
                 apple.setRandomPos(randomApplePos());
-                return;
             }
             snek.move();
             repaint();
@@ -36,7 +36,7 @@ public class Window extends JFrame {
         timer.start();
     }
     private boolean isAppleEaten() {
-        if(snek.Tiles().get(snek.Tiles().size() - 1).x == apple.getX() && snek.Tiles().get(snek.Tiles().size() - 1).y == apple.getY()) {
+        if(snek.position[0].x == apple.getX() && snek.position[0].y == apple.getY()) {
             return true;
         } else {
             return false;
@@ -54,6 +54,7 @@ public class Window extends JFrame {
     //
     public void frameConfig(int width, int height) {
         apple = new Apple(randomApplePos());
+        score = new Score();
         panel = new Panel();
         sPanel = new SnakePanel();
         //
@@ -81,6 +82,8 @@ public class Window extends JFrame {
                 snek.currentDirection = Direction.Left;
             } else if(keycode == KeyEvent.VK_RIGHT && snek.currentDirection != Direction.Left) {
                 snek.currentDirection = Direction.Right;
+            } else if(keycode == KeyEvent.VK_D) {
+                snek.addSnakePart();
             }
         }
         @Override

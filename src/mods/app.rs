@@ -4,15 +4,15 @@ use std::collections::HashMap;
 fn init() -> (Canvas<Window>, EventPump, Keys) {
     let sdl = sdl2::init().unwrap();
     let video = sdl.video().unwrap();
-
+ 
     let window = 
         video
-        .window("Test Application", 600, 600)
+        .window("Snake", 600, 600)
         .position_centered()
         .build()
         .unwrap();
 
-    let canvas = window.into_canvas().build().unwrap();
+    let canvas = window.into_canvas().accelerated().build().unwrap();
     let pump = sdl.event_pump().unwrap();
 
     let key_map = HashMap::from([
@@ -78,7 +78,7 @@ impl App {
                     println!("Time of Exit => {}", timestamp);
                     return true;
                 },
-                KeyDown { timestamp: _, window_id: _, keycode, scancode: _, keymod: _, repeat: _ } => {
+                KeyDown { keycode, .. } => {
                     match keycode.unwrap() {
                         Keycode::Escape => {
                             return true;
@@ -101,7 +101,7 @@ impl App {
                         _ => {}
                     }
                 }
-                KeyUp { timestamp: _, window_id: _, keycode, scancode: _, keymod: _, repeat: _ } => {
+                KeyUp { keycode, .. } => {
                     match keycode.unwrap() {
                         Keycode::W => {
                             self.keys.get("w".to_owned()).unwrap().pressed = false;

@@ -8,15 +8,15 @@ pub mod mods;
 
 pub const UNIT_SIZE: i16 = 20;
 
-pub static mut AI_ENABLED: bool = false;
-
 fn main() -> Result<(), String> {
     let args: Vec<String> = std::env::args().collect();
+
+    let mut ai_enabled: bool = false;
 
     for x in &args {
         if x == "--enable-ai" || x == "-ai"
         {
-            unsafe { AI_ENABLED = true; }
+            ai_enabled = true;
         }
     }
 
@@ -47,16 +47,18 @@ fn main() -> Result<(), String> {
             }
 
             let canvas = app.get_canvas();
-            apple.draw_apple(canvas); snake.move_snake(); snake.draw_snake(canvas);
+            apple.draw_apple(canvas); snake.move_snake(&ai_enabled); snake.draw_snake(canvas);
 
-            if app.key_pressed("w") && snake.dir != Direction::Down {
-                snake.dir = Direction::Up;
-            } else if app.key_pressed("a") && snake.dir != Direction::Right {
-                snake.dir = Direction::Left;
-            } else if app.key_pressed("s") && snake.dir != Direction::Up {
-                snake.dir = Direction::Down;
-            } else if app.key_pressed("d") && snake.dir != Direction::Left {
-                snake.dir = Direction::Right;
+            if !ai_enabled {
+                if app.key_pressed("w") && snake.dir != Direction::Down {
+                    snake.dir = Direction::Up;
+                } else if app.key_pressed("a") && snake.dir != Direction::Right {
+                    snake.dir = Direction::Left;
+                } else if app.key_pressed("s") && snake.dir != Direction::Up {
+                    snake.dir = Direction::Down;
+                } else if app.key_pressed("d") && snake.dir != Direction::Left {
+                    snake.dir = Direction::Right;
+                }
             }
 
             if check_collisions(&snake) {
@@ -180,7 +182,7 @@ pub mod snake {
         Right
     }
 
-    use crate::{UNIT_SIZE, AI_ENABLED, mods::ai};
+    use crate::UNIT_SIZE;
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     pub struct Position {
@@ -292,7 +294,7 @@ pub mod snake {
             }
         }
 
-        const DIRS: [Direction; 4] = 
+        /*const DIRS: [Direction; 4] = 
         [
             Direction::Right,
             Direction::Down,
@@ -322,12 +324,10 @@ pub mod snake {
             let mut i = self.get_dir_val();
             if (i - 1) >= 0 { i-=1; } else { i += 4; }
             Self::DIRS[i as usize]
-        }
+        }*/
 
-        pub fn move_snake(&mut self) {
-            if unsafe {
-                AI_ENABLED
-            } {
+        pub fn move_snake(&mut self, ai_enabled: &bool) {
+            if *ai_enabled {
                 /*ai::test(, )                
 
                 self.dir = match out

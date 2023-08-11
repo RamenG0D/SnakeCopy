@@ -8,7 +8,18 @@ pub mod mods;
 
 pub const UNIT_SIZE: i16 = 20;
 
+pub static mut AI_ENABLED: bool = false;
+
 fn main() -> Result<(), String> {
+    let args: Vec<String> = std::env::args().collect();
+
+    for x in &args {
+        if x == "--enable-ai" || x == "-ai"
+        {
+            unsafe { AI_ENABLED = true; }
+        }
+    }
+
     let mut snake = Snake::default();
     let mut apple = Apple::default();
 
@@ -19,7 +30,7 @@ fn main() -> Result<(), String> {
     let mut score = 0;
 
     let ttf = sdl2::ttf::init().map_err(|e| e.to_string())?;
-    const PATH: &'static str = "src/ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
+    const PATH: &'static str = "ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
     let mut font = ttf.load_font(PATH, P_SIZE)?;
 
     'running: loop {
@@ -58,20 +69,12 @@ fn main() -> Result<(), String> {
             if apple_check(&snake, &apple) {
                 let last = snake.body.get(snake.body.len() - 1).unwrap();
                 let dir = match snake.dir {
-                    Direction::Up => {
-                        Position::new(last.x, last.y + 1)
-                    },
-                    Direction::Down => {
-                        Position::new(last.x, last.y - 1)
-                    },
-                    Direction::Left => {
-                        Position::new(last.x - 1, last.y)
-                    },
-                    Direction::Right => {
-                        Position::new(last.x + 1, last.y)
-                    }
+                    Direction::Up => Position::new(last.x, last.y + 1),
+                    Direction::Down => Position::new(last.x, last.y - 1),
+                    Direction::Left => Position::new(last.x - 1, last.y),
+                    Direction::Right => Position::new(last.x + 1, last.y)
                 };
-                score += 1; apple.randomize(&snake); snake.body.push(dir);
+                score += 1; apple.randomize(&snake); snake.body.push_back(dir);
             }
 
             app.present();
@@ -91,6 +94,8 @@ fn restart(score: &mut i32, snake: &mut Snake, apple: &mut Apple, dead: &mut boo
 }
 
 pub mod snake {
+    use std::collections::VecDeque;
+
     use sdl2::{render::WindowCanvas, pixels::Color, rect::Rect, ttf::*};
 
     const GAME_WIDTH: i32 = 30;
@@ -141,21 +146,17 @@ pub mod snake {
     pub fn check_collisions(snake: &Snake) -> bool {
         let mut siter = snake.body.iter();
 
-        let head = siter.next().unwrap();
+        let head = *siter.next().unwrap();
 
-        println!("{:#?}", head);
+        if siter.any(|&x| head == x) {
+            return true;
+        }
 
         if (head.x > GAME_WIDTH || head.y > GAME_HEIGHT)
            || 
            (head.x < 0 || head.y < 0) 
         {
             return true;
-        }
-        
-        while let Some(tmp) = siter.next() {
-            if head.x == tmp.x && head.y == tmp.y {
-                return true;
-            }
         }
 
         false
@@ -171,7 +172,7 @@ pub mod snake {
         false
     }
 
-    #[derive(PartialEq)]
+    #[derive(Clone, Copy, PartialEq)]
     pub enum Direction {
         Up,
         Down,
@@ -179,9 +180,9 @@ pub mod snake {
         Right
     }
 
-    use crate::UNIT_SIZE;
+    use crate::{UNIT_SIZE, AI_ENABLED, mods::ai};
 
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq)]
     pub struct Position {
         pub x: i32,
         pub y: i32
@@ -249,7 +250,7 @@ pub mod snake {
     }
 
     pub struct Snake {
-        pub body: Vec<Position>,
+        pub body: VecDeque<Position>,
         pub dir: Direction
     }
 
@@ -260,7 +261,7 @@ pub mod snake {
                     Position::new(4, 14),
                     Position::new(3, 14),
                     Position::new(2, 14)
-                ]
+                ].into()
             )
         }
     }
@@ -268,7 +269,7 @@ pub mod snake {
     impl Snake {
 
         pub fn new(
-            body: Vec<Position>
+            body: VecDeque<Position>
         ) -> Self {
             Self {
                 dir: Direction::Right,
@@ -291,8 +292,52 @@ pub mod snake {
             }
         }
 
+        const DIRS: [Direction; 4] = 
+        [
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up
+        ];
+
+        #[inline(always)]
+        fn get_dir_val(&self) -> i32 {
+            match self.dir {
+                Direction::Up => 3,
+                Direction::Down => 1,
+                Direction::Left => 2,
+                Direction::Right => 0,
+            }
+        }
+
+        #[inline]
+        fn turn_left(&self) -> Direction {
+            let mut i = self.get_dir_val();
+            if (i + 1) <= 4 { i+=1; } else { i -= 4; }
+            Self::DIRS[i as usize]
+        }
+
+        #[inline]
+        fn turn_right(&self) -> Direction {
+            let mut i = self.get_dir_val();
+            if (i - 1) >= 0 { i-=1; } else { i += 4; }
+            Self::DIRS[i as usize]
+        }
+
         pub fn move_snake(&mut self) {
-            self.cycle();
+            if unsafe {
+                AI_ENABLED
+            } {
+                /*ai::test(, )                
+
+                self.dir = match out
+                {
+                    [0, 0, 1] => self.turn_left(),
+                    [0, 1, 0] => self.turn_right(),
+                    [1, 0, 0] => self.dir
+                }*/
+            }
+
             match self.dir {
                 Direction::Up => self.move_up(),
                 Direction::Down => self.move_down(),
@@ -301,33 +346,24 @@ pub mod snake {
             }
         }
 
-        fn cycle(&mut self) {
-            let len = self.body.len();
-
-            self.body.reverse();
-
-            for i in 0..len {
-                if (i + 1) >= len { break; }
-                self.body[i] = self.body[i+1];
-            }
-
-            self.body.reverse();
-        }
-
         fn move_up(&mut self) {
-            self.body[0] = Position::new(self.body[0].x, self.body[0].y - 1);
+            self.body.push_front(Position::new(self.body[0].x, self.body[0].y - 1));
+            self.body.pop_back();
         }
 
         fn move_down(&mut self) {
-            self.body[0] = Position::new(self.body[0].x, self.body[0].y + 1);
+            self.body.push_front(Position::new(self.body[0].x, self.body[0].y + 1));
+            self.body.pop_back();
         }
 
         fn move_left(&mut self) {
-            self.body[0] = Position::new(self.body[0].x - 1, self.body[0].y);
+            self.body.push_front(Position::new(self.body[0].x - 1, self.body[0].y));
+            self.body.pop_back();
         }
 
         fn move_right(&mut self) {
-            self.body[0] = Position::new(self.body[0].x + 1, self.body[0].y);
+            self.body.push_front(Position::new(self.body[0].x + 1, self.body[0].y));
+            self.body.pop_back();
         }
 
     }

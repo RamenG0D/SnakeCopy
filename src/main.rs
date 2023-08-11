@@ -19,7 +19,7 @@ fn main() -> Result<(), String> {
     let mut score = 0;
 
     let ttf = sdl2::ttf::init().map_err(|e| e.to_string())?;
-    const PATH: &'static str = "src/ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
+    const PATH: &'static str = "ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
     let mut font = ttf.load_font(PATH, P_SIZE)?;
 
     'running: loop {

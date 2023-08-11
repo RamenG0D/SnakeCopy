@@ -6,6 +6,7 @@ use snake::{Snake, Position, Direction, Apple, check_collisions, apple_check, di
 
 pub mod mods;
 
+pub const GAME_SPEED: Duration = Duration::from_millis(150);
 pub const UNIT_SIZE: i16 = 20;
 
 fn main() -> Result<(), String> {
@@ -19,7 +20,7 @@ fn main() -> Result<(), String> {
     let mut score = 0;
 
     let ttf = sdl2::ttf::init().map_err(|e| e.to_string())?;
-    const PATH: &'static str = "src/ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
+    const PATH: &'static str = "ChunkFive-Regular.otf"; const P_SIZE: u16 = 128;
     let mut font = ttf.load_font(PATH, P_SIZE)?;
 
     'running: loop {
@@ -79,7 +80,7 @@ fn main() -> Result<(), String> {
         }
 
         fps += 1;
-        std::thread::sleep(Duration::from_millis(200))
+        std::thread::sleep(GAME_SPEED)
     }
     Ok(())
 }
@@ -142,8 +143,6 @@ pub mod snake {
         let mut siter = snake.body.iter();
 
         let head = siter.next().unwrap();
-
-        println!("{:#?}", head);
 
         if (head.x > GAME_WIDTH || head.y > GAME_HEIGHT)
            || 
